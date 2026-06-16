@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -82,6 +83,16 @@ class Skeletonize(torch.nn.Module):
         Only two- and three-dimensional images with values between 0 and 1 are supported.
         If the input image is two-dimensional then it is converted into a three-dimensional one for further processing.
         """
+
+        if isinstance(img, np.ndarray):
+            img = torch.from_numpy(img)
+
+        if not img.is_floating_point():
+            img = img.float()
+
+        # Add batch and channel dims for bare (H, W) or (D, H, W) inputs
+        if img.dim() == 2 or img.dim() == 3:
+            img = img.unsqueeze(0).unsqueeze(0)
 
         if img.dim() == 5:
             self.expanded_dims = False
